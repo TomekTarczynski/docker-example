@@ -1,0 +1,48 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Square Calculator</title>
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+</head>
+<body>
+    <h1>Square Calculator</h1>
+    <form id="squareForm">
+        <label for="number">Enter a number:</label>
+        <input type="text" id="number" name="number" required>
+        <button type="submit">Calculate Square</button>
+    </form>
+
+    <h2>Result:</h2>
+    <p id="result"></p>
+
+    <script>
+        $(document).ready(function() {
+            // Handle the form submission
+            $('#squareForm').submit(function(event) {
+                event.preventDefault();  // Prevent the form from submitting via the browser
+                var number = $('#number').val();  // Get the value from the input field
+
+                // Make an AJAX request to the API
+                $.ajax({
+                    url: 'http://127.0.0.1:5001/square',
+                    type: 'GET',
+                    data: { number: number },
+                    success: function(response) {
+                        // Display the result in the paragraph
+                        if (response.error) {
+                            $('#result').text(response.error);
+                        } else {
+                            $('#result').text('The square of ' + response.number + ' is ' + response.square);
+                        }
+                    },
+                    error: function() {
+                        $('#result').text('An error occurred while processing your request.');
+                    }
+                });
+            });
+        });
+    </script>
+</body>
+</html>
