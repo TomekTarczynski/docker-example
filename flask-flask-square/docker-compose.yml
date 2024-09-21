@@ -1,16 +1,16 @@
-version: '3.8'
-
 services:
   backend:
     build:
       context: ./backend
       dockerfile: Dockerfile
     ports:
-      - "5001:5001"
+      - "${BACKEND_PORT}:${BACKEND_PORT}"
     expose:
-      - "5001"
+      - "${BACKEND_PORT}"
     environment:
       FLASK_ENV: development
+      BACKEND_PORT: "${BACKEND_PORT}"  # Pass the port into the backend environment
+      FRONTEND_PORT: "${FRONTEND_PORT}"      
     networks:
       - app-network
 
@@ -19,11 +19,13 @@ services:
       context: ./frontend
       dockerfile: Dockerfile
     ports:
-      - "5000:5000"
+      - "${FRONTEND_PORT}:${FRONTEND_PORT}"
     expose:
-      - "5000"
+      - "${FRONTEND_PORT}"
     environment:
       FLASK_ENV: development
+      BACKEND_URL: "${BACKEND_URL}"  # Pass the backend URL to the frontend
+      FRONTEND_PORT: "${FRONTEND_PORT}"
     networks:
       - app-network
 

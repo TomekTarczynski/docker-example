@@ -19,18 +19,16 @@
 
     <script>
         $(document).ready(function() {
-            // Handle the form submission
             $('#squareForm').submit(function(event) {
                 event.preventDefault();  // Prevent the form from submitting via the browser
                 var number = $('#number').val();  // Get the value from the input field
 
-                // Make an AJAX request to the API
+                // Make an AJAX request to the frontend, which will proxy the request to the backend
                 $.ajax({
-                    url: 'http://127.0.0.1:5001/square',
+                    url: '/proxy_square',
                     type: 'GET',
                     data: { number: number },
                     success: function(response) {
-                        // Display the result in the paragraph
                         if (response.error) {
                             $('#result').text(response.error);
                         } else {

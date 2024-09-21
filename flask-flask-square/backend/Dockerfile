@@ -18,9 +18,12 @@ RUN .venv/bin/pip install -r requirements.txt --progress-bar=off
 
 # Make sure the virtual environment is activated by default
 ENV PATH="/usr/src/app/.venv/bin:$PATH"
+ENV BACKEND_PORT=${BACKEND_PORT}
+ENV FRONTEND_PORT=${FRONTEND_PORT}
 
-# Expose port 5001
-EXPOSE 5001
+# Expose the port that the application will run on (from an environment variable or default to 8000)
+
+EXPOSE ${BACKEND_PORT}
 
 # Run the Flask app
 CMD ["python", "backend.py"]

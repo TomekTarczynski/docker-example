@@ -1,8 +1,7 @@
 from flask import Flask, request, jsonify
-from flask_cors import CORS
+import os
 
 app = Flask(__name__)
-CORS(app)  # Enable CORS for all routes
 
 @app.route('/square', methods=['GET'])
 def calculate_square():
@@ -32,4 +31,5 @@ def calculate_square():
         }), 400
 
 if __name__ == '__main__':
-    app.run(debug=True, host='0.0.0.0', port=5001)  # Bind to 0.0.0.0 to allow external access
+    backend_port = os.getenv('BACKEND_PORT', 5001)
+    app.run(debug=True, host='0.0.0.0', port=backend_port)  # Bind to 0.0.0.0 to allow external access
