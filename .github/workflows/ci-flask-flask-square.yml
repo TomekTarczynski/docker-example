@@ -13,11 +13,6 @@ jobs:
   backend_tests:
     runs-on: ubuntu-latest
 
-    services:
-      docker:
-        image: docker:19.03.12
-        options: --privileged
-
     steps:
       # Checkout the code
       - name: Checkout code
@@ -51,6 +46,11 @@ jobs:
       # Checkout the code
       - name: Checkout code
         uses: actions/checkout@v3
+
+      # Install pytest in the GitHub Actions environment
+      - name: Install pytest for integration tests
+        run: |
+          pip install pytest
 
       # Build Backend Docker Image
       - name: Build backend container
