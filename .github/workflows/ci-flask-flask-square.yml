@@ -61,7 +61,7 @@ jobs:
       # Run Backend Container
       - name: Run backend container
         run: |
-          docker run -d --name backend -p 3001:3001 backend:latest
+          docker run -d --name backend -p 3001:3001 -e BACKEND_PORT=3001 backend:latest
           sleep 10  # Wait for the backend to start up
 
       # Run Container Integration Tests
