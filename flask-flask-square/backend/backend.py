@@ -31,5 +31,5 @@ def calculate_square():
         }), 400
 
 if __name__ == '__main__':
-    backend_port = os.getenv('BACKEND_PORT', 5001)
+    backend_port = os.getenv('BACKEND_PORT', 3001)
     app.run(debug=True, host='0.0.0.0', port=backend_port)  # Bind to 0.0.0.0 to allow external access
