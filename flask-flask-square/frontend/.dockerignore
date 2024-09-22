@@ -1,0 +1,10 @@
+# Ignore Python bytecode
+*.pyc
+__pycache__/
+
+# Ignore pytest cache
+.pytest_cache/
+
+# Ignore virtual environments
+.venv/
+env/

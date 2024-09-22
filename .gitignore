@@ -1,2 +1,3 @@
 .venv
 print_structure.py
+__pycache__/
