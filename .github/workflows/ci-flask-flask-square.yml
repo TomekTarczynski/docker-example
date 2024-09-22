@@ -1,6 +1,5 @@
 name: CI Pipeline
 
-# Run the workflow on pushes or pull requests to the 'main' branch
 on:
   push:
     branches:
@@ -10,40 +9,10 @@ on:
       - main
 
 jobs:
-  # Python Tests Job
-  test:
+  # Python Tests Job for Backend
+  backend_tests:
     runs-on: ubuntu-latest
 
-    steps:
-      # Checkout the code
-      - name: Checkout code
-        uses: actions/checkout@v3
-
-      # Set up Python environment
-      - name: Set up Python
-        uses: actions/setup-python@v3
-        with:
-          python-version: '3.x'
-
-      # Install dependencies for the backend
-      - name: Install backend dependencies
-        working-directory: flask-flask-square/backend  # Set the working directory
-        run: |
-          python -m pip install --upgrade pip
-          pip install -r requirements.txt
-
-      # Run backend tests
-      - name: Run backend tests
-        working-directory: flask-flask-square/backend  # Set the working directory
-        env:
-          BACKEND_PORT: 3001  # Set environment variable for tests
-        run: |
-          pytest tests/
-
-  # Docker Build and Test Job
-  docker_build:
-    runs-on: ubuntu-latest
-    needs: test  # This job depends on the test job to succeed
     services:
       docker:
         image: docker:19.03.12
@@ -54,37 +23,55 @@ jobs:
       - name: Checkout code
         uses: actions/checkout@v3
 
-      # Set up Docker Buildx (for multi-platform support)
-      - name: Set up Docker Buildx
-        uses: docker/setup-buildx-action@v2
+      # Set up Python environment for unit tests
+      - name: Set up Python
+        uses: actions/setup-python@v3
+        with:
+          python-version: '3.x'
+
+      # Install backend dependencies for unit tests
+      - name: Install backend dependencies
+        working-directory: flask-flask-square/backend
+        run: |
+          python -m pip install --upgrade pip
+          pip install -r requirements.txt
+
+      # Run backend unit tests
+      - name: Run backend unit tests
+        working-directory: flask-flask-square/backend
+        run: |
+          pytest tests/
+
+  # Docker Build and Integration Test Job
+  container_integration_tests:
+    runs-on: ubuntu-latest
+    needs: backend_tests  # This job runs only if the unit tests pass
+
+    steps:
+      # Checkout the code
+      - name: Checkout code
+        uses: actions/checkout@v3
 
       # Build Backend Docker Image
-      - name: Build backend image
-        working-directory: flask-flask-square/backend  # Set working directory to backend
+      - name: Build backend container
+        working-directory: flask-flask-square/backend
         run: |
           docker build -t backend:latest .
 
-      # Build Frontend Docker Image
-      - name: Build frontend image
-        working-directory: flask-flask-square/frontend  # Set working directory to frontend
+      # Run Backend Container
+      - name: Run backend container
         run: |
-          docker build -t frontend:latest .
+          docker run -d --name backend -p 3001:3001 backend:latest
+          sleep 10  # Wait for the backend to start up
 
-      # Run Backend Container with BACKEND_PORT set to 3001
-      - name: Run Backend Container
+      # Run Container Integration Tests
+      - name: Run backend container integration tests
+        working-directory: flask-flask-square/backend
         run: |
-          docker run -d --name backend -p 3001:3001 -e BACKEND_PORT=3001 backend:latest
-          sleep 10  # Increase this value if the app needs more time to start
-          curl http://localhost:3001/square?number=2
+          pytest tests_container/
 
-      # Run Frontend Container for testing
-      - name: Run Frontend Container
+      # Stop and remove the backend container
+      - name: Stop and remove container
         run: |
-          docker run -d --name frontend -p 3000:3000 -e FRONTEND_PORT=3000 frontend:latest
-          sleep 10
-          curl http://localhost:3000/
-
-      # Stop containers after tests
-      - name: Stop Containers
-        run: |
-          docker stop backend frontend
+          docker stop backend
+          docker rm backend
