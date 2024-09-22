@@ -35,6 +35,8 @@ jobs:
       # Run backend tests
       - name: Run backend tests
         working-directory: flask-flask-square/backend  # Set the working directory
+        env:
+          BACKEND_PORT: 3001  # Set environment variable for tests
         run: |
           pytest tests/
 
@@ -68,18 +70,18 @@ jobs:
         run: |
           docker build -t frontend:latest .
 
-      # Run Backend Container for testing
+      # Run Backend Container with BACKEND_PORT set to 3001
       - name: Run Backend Container
         run: |
-          docker run -d --name backend -p 3001:3001 backend:latest
-          sleep 5
+          docker run -d --name backend -p 3001:3001 -e BACKEND_PORT=3001 backend:latest
+          sleep 10  # Increase this value if the app needs more time to start
           curl http://localhost:3001/square?number=2
 
       # Run Frontend Container for testing
       - name: Run Frontend Container
         run: |
-          docker run -d --name frontend -p 3000:3000 frontend:latest
-          sleep 5
+          docker run -d --name frontend -p 3000:3000 -e FRONTEND_PORT=3000 frontend:latest
+          sleep 10
           curl http://localhost:3000/
 
       # Stop containers after tests
